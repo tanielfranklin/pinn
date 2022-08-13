@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 class LossHistory(object):
     def __init__(self):
         self.steps = []

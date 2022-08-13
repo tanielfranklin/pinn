@@ -1,3 +1,6 @@
+import tensorflow as tf
+import time
+import numpy as np
 class Logger(object):
   def __init__(self, frequency=10):
     print("TensorFlow version: {}".format(tf.__version__))

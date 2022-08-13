@@ -1,20 +1,37 @@
+import tensorflow as tf
+from keras.models import Sequential
+from keras.layers import LSTM
+from keras.layers import Dense
+from keras.layers import Dropout
+from keras.layers import TimeDistributed
+from keras.layers import RepeatVector
+from LossHistory import LossHistory,VarHistory
+from TrainState import TrainState
+from utils import dydt
+import numpy as np
+import time
+
+rho=950
+PI=2.32e-9
+
 ## PINN elaborated by tanielfranlin@gmail.com
 #Adapted from https://colab.research.google.com/drive/1lo7Kf8zTb-DF_MjkO8Y07sYELnX3BNUR#scrollTo=-rWEI708GDei 
 #L-BFGS inspired in example Pi-Yueh Chuang <pychuang@gwu.edu>
-class PhysicsInformedNN(object):
+class pinn_vfm(object):
     #Define the Constructor
     # def __init__(self,neurons, optimizer, logger,  var=None, batch_size=1, pinn_mode=1, inputs=2, error=None):
-    def __init__(self,neurons, optimizer, logger,  var=None, pinn_mode=1, inputs=2):
+    def __init__(self,neurons, optimizer, logger,  var=None, pinn_mode=1, inputs=2, n_steps_in=20,n_steps_out=1):
     # Descriptive Keras model LSTM model
 
         self.u_model = Sequential()
-        self.batch_size=batch_size
+        #self.batch_size=batch_size
         
         self.inputs=inputs #input states
         # kernel_initializer='glorot_uniform',
         # bias_initializer=None,
 
         n_features=inputs
+
 
         # encoder layer
         self.u_model.add(LSTM(neurons, input_shape=(n_steps_in, inputs)))
@@ -54,7 +71,7 @@ class PhysicsInformedNN(object):
 
 
 
-        self.error_fn=self.erro()
+        #self.error_fn=self.erro()
         self.Font=14   
         self.logger.set_error_fn(self.erro)
         self.losshistory = LossHistory() 
@@ -256,7 +273,7 @@ class PhysicsInformedNN(object):
     def ED_BCS(self,x,u):
         var=[self.rho, self.PI]
         #init=time.time()
-        ddy=dydt2(x,tf.constant(1.0,dtype=tf.float32))
+        ddy=dydt(x,tf.constant(1.0,dtype=tf.float32))
       
         # Tensores (Estados atuais preditos)
         # pbh = x[:,:,0:1]*pbc+pbmin
@@ -303,22 +320,6 @@ class PhysicsInformedNN(object):
         F1=(F1-F1lim[0])/F1c
         F2=(F2-F2lim[0])/F2c
         H=(H-H_lim[0])/Hc
-        ###########################
-
-        # print('#############')
-        # print(tf.reduce_mean(tf.square(H)))
-        # print(tf.reduce_mean(tf.square(F1)))
-        # print(tf.reduce_mean(tf.square(F2)))
-        # print(tf.reduce_mean(tf.square(pbh*pbc+pbmin - (pwh*pwc+pwmin) - rho*g*hw)))
-        # print(tf.reduce_mean(- (1/(qc*M))*(pbh*pbc+pbmin - (pwh*pwc+pwmin) - rho*g*hw - (F1c*F1+F1lim[0]) - (F2c*F2+F2lim[0]) +  rho* g * (H*Hc+H_lim[0]))))
-        # print(tf.reduce_mean(tf.square(dx[:,:,2:])))
-        # print('#############')
-        #return pbh,pwh  # - (1/(qc*M))*(pbh*pbc+pbmin - (pwh*pwc+pwmin) - rho*g*hw - (F1c*F1+F1lim[0]) - (F2c*F2+F2lim[0]) +  rho* g * (H*Hc+H_lim[0]))
-
-        # res1=dx[:,:,0:1] - (1/pbc)*b1/V1*(qr - (q*qc+qmin))
-        # res2=dx[:,:,1:2] - (1/pwc)*b2/V2*((q*qc+qmin) - (qcc*qch+qch_lim[0]))
-        # res3=dx[:,:,2:] - (1/(qc*M))*(pbh*pbc+pbmin - (pwh*pwc+pwmin) - self.rho*rho*g*hw - (F1c*F1+F1lim[0]) - (F2c*F2+F2lim[0]) +  self.rho*rho* g * (H*Hc+H_lim[0])) 
-        # return tf.reduce_mean(tf.square(res1)), tf.reduce_mean(tf.square(res2)), tf.reduce_mean(tf.square(res3))
 
         dy1=- (1/pbc)*b1/V1*(qr - q)
         dy2=- (1/pwc)*b2/V2*(q - (qcc*qch+qch_lim[0]))

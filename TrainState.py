@@ -1,3 +1,4 @@
+import numpy as np
 class TrainState(object):
     def __init__(self):
         self.epoch, self.step = 0, 0

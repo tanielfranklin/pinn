@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+from matplotlib import pyplot as plt
 
 def test_res(y,u,model):
     model.rho=tf.Variable(1.0, dtype=tf.float32)
@@ -7,7 +8,7 @@ def test_res(y,u,model):
     r1,r2,r3=model.ED_BCS(y,u)
     return r1.numpy(),r2.numpy(),r3.numpy()
 
-def dydt2(y_pred,ts):
+def dydt(y_pred,ts):
     #Central 3 pontos
     y = y_pred[:,0,:]
     n=y.shape[0]
@@ -36,7 +37,7 @@ def plot_states_BCS(input,t,norm=False):
     label = ['Pbh','Pbw','q'];
     for i,val in enumerate(label): 
         ax1=fig4.add_subplot(len(label),1,i+1)   
-        ax1.plot(tempo ,input[:,i]*scale[i], label=val)
+        ax1.plot(t ,input[:,i]*scale[i], label=val)
         if i!=2:
             ax1.set_xticklabels([])
         ax1.set_ylabel(val)

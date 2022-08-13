@@ -1,4 +1,4 @@
-from utils import add_noise_norm
+from utils import add_noise_norm, plot_u, plot_states_BCS
 import tensorflow as tf
 import numpy as np
 import pandas as pd
@@ -79,7 +79,7 @@ def split_sequences(sequences, n_steps_in, n_steps_out):
 
 
 
-def build_dataset(n_steps_in, n_steps_out,dados):
+def build_dataset(n_steps_in, n_steps_out,dados,batch_size):
     def reshape_data(dataset,length):
         dataset_new=[]
         for i in dataset:
@@ -126,12 +126,21 @@ def build_dataset(n_steps_in, n_steps_out,dados):
     x1,x2,x3,fk,zc,pmc,pr,tempo=dataset_limited
     ts=1
     x=np.hstack(dataset_full[0:3])
+    uplot=dataset_full[3:-1]
+    Fig_u=plot_u(uplot)
+    Fig_x=plot_states_BCS(x,tempo)
     xn=normalizar_x(x,xc,x0)
     print("Limites das exógenas")
     for i in dataset_full[3:7]:
         print(f"Max:{max(i)}, Min: {min(i)}")
     u=np.hstack(dataset_full[3:7])
     un=normalizar_u(dataset_full[3:7],[60,100,pm_c,prc])
+    Figs={}
+    Fig_xn=plot_states_BCS(xn,tempo,norm=True)
+    uplot=[un[:,i] for i in range(4)]
+    Fig_un=plot_u(uplot)
+    Figs["un"]=Fig_un
+    Figs["xn"]=Fig_xn
     df = pd.DataFrame(np.hstack([un,xn]),columns=['fn','zn','pmn','prn','pbh','pwh','q'])
     df_u = pd.DataFrame(np.hstack([u]),columns=['f','z','pm','pr'])
     dset = df.values.astype(float)
@@ -153,7 +162,10 @@ def build_dataset(n_steps_in, n_steps_out,dados):
     train_y=tf.convert_to_tensor(train_y, dtype=tf.float32) # y(k) para ODE
     train_y_full=tf.convert_to_tensor(train_y_full, dtype=tf.float32) # y(k) para ODE
     u_train=tf.convert_to_tensor(u_train, dtype=tf.float32) # y(k) para ODE
-    # train_dataset = tf.data.Dataset.from_tensor_slices((train_X,train_y, u_train))
-    # train_dataset = train_dataset.batch(batch_size)
-    return train_X, train_y_full, u_train
+    train_dataset = tf.data.Dataset.from_tensor_slices((train_X,train_y, u_train))
+    train_dataset = train_dataset.batch(batch_size)
+   
+    Figs["u"]=Fig_u
+    Figs["x"]=Fig_x
+    return y,train_dataset,test_y,test_X,train_X, train_y_full, u_train, Figs
 
