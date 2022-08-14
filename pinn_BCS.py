@@ -7,7 +7,8 @@ from keras.layers import TimeDistributed
 from keras.layers import RepeatVector
 from LossHistory import LossHistory,VarHistory
 from TrainState import TrainState
-from utils import dydt
+from utils import dydt, get_abs_max_grad
+from param import *
 import numpy as np
 import time
 
@@ -20,11 +21,11 @@ PI=2.32e-9
 class pinn_vfm(object):
     #Define the Constructor
     # def __init__(self,neurons, optimizer, logger,  var=None, batch_size=1, pinn_mode=1, inputs=2, error=None):
-    def __init__(self,neurons, optimizer, logger,  var=None, pinn_mode=1, inputs=2, n_steps_in=20,n_steps_out=1):
-    # Descriptive Keras model LSTM model
+    def __init__(self,neurons, optimizer, logger,  var=None, pinn_mode=1, inputs=2, n_steps_in=20,n_steps_out=1,parameters=None):    # Descriptive Keras model LSTM model
 
         self.u_model = Sequential()
         #self.batch_size=batch_size
+        self.ode_parameters=parameters
         
         self.inputs=inputs #input states
         # kernel_initializer='glorot_uniform',
@@ -73,13 +74,15 @@ class pinn_vfm(object):
 
         #self.error_fn=self.erro()
         self.Font=14   
-        self.logger.set_error_fn(self.erro)
+        
         self.losshistory = LossHistory() 
         self.varhistory = VarHistory()
         self.train_state = TrainState()
         self.nsess=0 
         self.epoch=0
         self.logger.log_train_start(self)
+        self.test_X=tf.random.normal(shape=(1,n_steps_in,inputs),dtype=tf.float32)
+        self.test_y=tf.random.normal(shape=(1,n_steps_in,n_steps_out),dtype=tf.float32)
     
     def get_lamb_weights(self):   
         l1=f"[{self.lamb_bc.numpy():4.3f},{self.lamb_l1.numpy():4.3f},{self.lamb_l2.numpy():4.3f},{self.lamb_l3.numpy():4.3f}"
@@ -263,8 +266,8 @@ class pinn_vfm(object):
         return f
     @tf.function
     def erro(self): 
-        y_pred = self.u_model(test_X)
-        yr=test_y
+        y_pred = self.u_model(self.test_X)
+        yr=self.test_y
         #erro=tf.sqrt((yr[:,-1,:] - y_pred[:,-1,:])**2)
         erro=tf.square(yr[:,:,:] - y_pred[:,:,0:2])
         return tf.reduce_mean(erro)
@@ -289,15 +292,15 @@ class pinn_vfm(object):
 
         #Teste derivada
         # Tensores (Estados atuais preditos)
-        pbh = x[:,0,0:1]*pbc+pbmin
-        pwh = x[:,0,1:2]*pwc+pwmin
-        q = x[:,0,2:]*qc+qmin #Vazão
+        pbh = x[:,0,0:1]*self.ode_parameters.pbc+self.ode_parameters.pbmin
+        pwh = x[:,0,1:2]*self.ode_parameters.pwc+self.ode_parameters.pwmin
+        q = x[:,0,2:]*self.ode_parameters.qc+self.ode_parameters.qmin #Vazão
         #Entradas exógenas atuais
         ### A entrada da rede exige entradas normalizadas o cálculo dos resíduos não
         fq=u[:,0,:1] *60  # desnormalizar para EDO
         zc=u[:,0,1:2]*100 # desnormalizar para EDO
-        pm=u[:,0,2:3]*pm_c+pm0
-        pr=u[:,0,3:]*prc+pr0
+        pm=u[:,0,2:3]*self.ode_parameters.pm_c+self.ode_parameters.pm0
+        pr=u[:,0,3:]*self.ode_parameters.prc+self.ode_parameters.pr0
 
         # print(fq.shape,zc.shape,pm.shape,pr.shape)
         # print(pbh.shape,pwh.shape,q.shape)
@@ -316,14 +319,14 @@ class pinn_vfm(object):
         qr = var[1]*PI * (pr - pbh)
         qch = (zc/100.0)*Cc * tf.sqrt(tf.abs(pwh-pm));
         ##########################
-        qch=(qch-qch_lim[0])/qcc
-        F1=(F1-F1lim[0])/F1c
-        F2=(F2-F2lim[0])/F2c
-        H=(H-H_lim[0])/Hc
+        qch=(qch-self.ode_parameters.qch_lim[0])/self.ode_parameters.qcc
+        F1=(F1-self.ode_parameters.F1lim[0])/self.ode_parameters.F1c
+        F2=(F2-self.ode_parameters.F2lim[0])/self.ode_parameters.F2c
+        H=(H-self.ode_parameters.H_lim[0])/self.ode_parameters.Hc
 
-        dy1=- (1/pbc)*b1/V1*(qr - q)
-        dy2=- (1/pwc)*b2/V2*(q - (qcc*qch+qch_lim[0]))
-        dy3=- (1/(qc*M))*(pbh - pwh - var[0]*rho*g*hw - (F1c*F1+F1lim[0]) - (F2c*F2+F2lim[0]) +  var[0]*rho* g * (H*Hc+H_lim[0]))
+        dy1=- (1/self.ode_parameters.pbc)*b1/V1*(qr - q)
+        dy2=- (1/self.ode_parameters.pwc)*b2/V2*(q - (self.ode_parameters.qcc*qch+self.ode_parameters.qch_lim[0]))
+        dy3=- (1/(self.ode_parameters.qc*M))*(pbh - pwh - var[0]*rho*g*hw - (self.ode_parameters.F1c*F1+self.ode_parameters.F1lim[0])  - (self.ode_parameters.F2c*F2+self.ode_parameters.F2lim[0]) +  var[0]*rho* g * (H*self.ode_parameters.Hc+self.ode_parameters.H_lim[0]))
         #return tf.reduce_mean(tf.square(ddy[:,:,0:1]+dy1)), tf.reduce_mean(tf.square(ddy[:,:,1:2]+dy2)), tf.reduce_mean(tf.square(ddy[:,:,2:]+dy3))
         return tf.reduce_mean(tf.square(ddy[:,0:1]+dy1)), tf.reduce_mean(tf.square(ddy[:,1:2]+dy2)), tf.reduce_mean(tf.square(ddy[:,2:]+dy3))
 
@@ -365,8 +368,8 @@ class pinn_vfm(object):
         return lamb_bc
     def GetLambStates(self,lamb_l1,lamb_l2,lamb_l3,lamb_bc,X,y,u):
         def update_lamb(l,gradmax,gradx):
-            return tf.convert_to_tensor((1-pinn.alfa)*l
-                                    +pinn.alfa*get_abs_max_grad(gradmax)/get_abs_mean_grad(gradx),dtype=tf.float32)
+            return tf.convert_to_tensor((1-pinn_vfm.alfa)*l
+                                    +pinn_vfm.alfa*get_abs_max_grad(gradmax)/get_abs_mean_grad(gradx),dtype=tf.float32)
         try:
             with tf.GradientTape(persistent=True) as tape:
                 lb,l1,l2,l3,lf,R1,R2,R3=self.GetLoss(y, self.u_model(X),u)  
@@ -434,6 +437,7 @@ class pinn_vfm(object):
             
     
     def fit(self, train_dataset, tf_epochs=5000,adapt_w=False):
+        self.logger.set_error_fn(self.erro)
         if adapt_w==True:
             self.lamb_l1,self.lamb_l2,self.lamb_l3,self.lamb_bc=self.GetLambStates(self.lamb_l1,
                                                                             self.lamb_l2,

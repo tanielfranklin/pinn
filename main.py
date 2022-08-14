@@ -3,7 +3,7 @@ import tensorflow as tf
 from matplotlib import pyplot as plt
 from BuildDataset import build_dataset
 from pinn_BCS import pinn_vfm
-
+from parameters import parameters
 from Logger import Logger
 from utils import Struct, plot_result, prep_data_plot
 #time = np.linspace(0, maxtime, 200) # Regular points inside the domain
@@ -11,9 +11,11 @@ from utils import Struct, plot_result, prep_data_plot
 dados = np.load('./dataset/BCS_data_train_limitado_f_zc_pm_pr_ident.npz')
 dados_test = np.load('./dataset/BCS_data_train_limitado_f_zc_pm_pr_oper.npz')
 #Somente Validação
+par=parameters()
+
 #building dataset for training 
 n_steps_in, n_steps_out = 20 ,1# convert into input/output many-to-one
-y,train_dataset,test_y,test_X,train_X, train_y, u_train,_=build_dataset(n_steps_in, n_steps_out,dados,batch_size=500)
+y,train_dataset,test_y,test_X,train_X, train_y, u_train,_=build_dataset(n_steps_in, n_steps_out,dados,batch_size=500,parameters=par)
 #plt.show()
 
 #========================================
@@ -53,7 +55,8 @@ pinn = pinn_vfm(Nc,tf_optimizer, logger,
                 var=var,pinn_mode="on", 
                 inputs=n_features, 
                 n_steps_in=n_steps_in,
-                n_steps_out=n_steps_out)
+                n_steps_out=n_steps_out,
+                parameters=par)
 
 #######################################
 pinn.lamb_l1=tf.constant(1.0, dtype=tf.float32) #x1 residue weight
@@ -61,9 +64,9 @@ pinn.lamb_l2=tf.constant(1.0, dtype=tf.float32) #x3 residue weight
 pinn.lamb_l3=tf.constant(1.0, dtype=tf.float32) #x3 residue weight
 # #######################################
 
-Loss, trainstate,vartrain=pinn.fit(train_dataset, tf_epochs=100)#,adapt_w=True)                                  
-pred_train,pred_test=prep_data_plot(pinn.u_model,train_X, train_y , test_X , test_y)
+Loss, trainstate,vartrain=pinn.fit(train_dataset, tf_epochs=10)#,adapt_w=True)                                  
+pred_train,pred_test=prep_data_plot(pinn.u_model,train_X, train_y , test_X , test_y,par.xc,par.x0)
 pinn.u_model.reset_metrics()
-plot_result(pred_train, pred_test, y[:,0,:])
+plot_result(pred_train, pred_test, y[:,0,:],par.xc,par.x0)
 vartrain.plot_var()
 Loss.plot_loss_res()

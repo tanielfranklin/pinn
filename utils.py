@@ -138,7 +138,7 @@ def plot_test(yp, obs, u_test,step):
              
         return Fig
 
-def plot_result(pred_train, pred_test, obs):   
+def plot_result(pred_train, pred_test, obs,xc,x0):   
     if obs.shape[-1]==2:
         obs=obs*xc[0:2]+x0[0:2]
     if obs.shape[-1]==3:
@@ -230,11 +230,12 @@ def evaluate_prediction(predictions, actual, model_name , start , end):
     print('')
 
 
-def prep_data_plot(model,train_X, train_y , test_X , test_y):  
+def prep_data_plot(model,train_X, train_y , test_X , test_y,xc,x0):  
     y_pred_train=model.predict(train_X)
     y_pred_train=y_pred_train.reshape(y_pred_train.shape[0]*y_pred_train.shape[1],y_pred_train.shape[2])
     y_pred_test=model.predict(test_X)
     y_pred_test=y_pred_test.reshape(y_pred_test.shape[0]*y_pred_test.shape[1],y_pred_test.shape[2])
+    n_steps_out=1
     for i in range(y_pred_train.shape[0]):
         k=i*n_steps_out
         if k==0:
@@ -273,27 +274,6 @@ def prep_data(model,x_test, y_test , start , end , last):
     print("y_pred_inv :",y_pred_inv.shape)
     
     return y_pred_inv , dataset_test_y , past_data#start can be any point in the test data (1258)
-
-@tf.function
-def dydt(y_pred,ts):
-    #Central 4 pontos
-    y = y_pred
-    n=y.shape[1]
-    try:
-        if n<6:
-            raise Exception("Model output size must have at least 6 time points ")          
-    except Exception as inst:
-        print(inst.args)
-        raise
-    #Progressiva e regressiva 3 pontos
-    pro3=tf.constant([[-3,4,-1]],dtype=tf.float32)/(2*ts)
-    reg3=tf.constant([[1,-4,3]],dtype=tf.float32)/(2*ts)
-    d1=tf.matmul(pro3,y_pred[:,0:3,:])
-    dn=tf.matmul(reg3,y_pred[:,-3:,:])
-    #Central 2 pontos
-    dc=(y_pred[:,2:n,:]-y_pred[:,0:n-2,:])/(2*ts)        
-    return tf.concat([d1,dc,dn],axis=1)
-
 
 
 

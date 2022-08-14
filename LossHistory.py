@@ -1,4 +1,10 @@
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import plotly.express as px
+# Create the second legend and add the artist manually.
+from matplotlib.legend import Legend
+Font=14
 class LossHistory(object):
     def __init__(self):
         self.steps = []
@@ -189,7 +195,6 @@ class VarHistory(object):
         plt.setp(ax2.get_xticklabels(), fontsize=Font)
         plt.setp(ax2.get_yticklabels(), fontsize=Font)
         leg = Legend(ax2, handles, labels,loc='lower center', frameon=False)
-
         ax2.add_artist(leg)
         ax.set_ylabel(r"$\rho ~[kg/m^3]$",fontsize=Font)
         ax.set_xlabel('Epochs',fontsize=Font)

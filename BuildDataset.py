@@ -3,52 +3,20 @@ import tensorflow as tf
 import numpy as np
 import pandas as pd
 
-f_lim=(30,75)
-qlim_m3=[15,65]
-qlim=(qlim_m3[0]/3600,qlim_m3[1]/3600)
 
-def Lim_c(xin):
-    return xin[1]-xin[0]
-F1c,F2c=8111.87,19468.5
-F1lim,F2lim=(99811.5, 107923),(239548,259016)
-Hc=1557.0851455268821
-qcc=0.03290348005910621
-
-zclim=(0,1)
-pmlim=(1e5,50e5)
-pbhlim=(1e5,1.26e7) 
-pwhlim=(1e5,50e5) 
-
-pbc=Lim_c(pbhlim)
-pwc=Lim_c(pwhlim)
-qc=Lim_c(qlim)
-pbmin=pbhlim[0]
-pwmin=pwhlim[0]
-qmin=qlim[0]
-H_lim=(-136.31543417849096, 1420.7697113483912)
-qch_lim=(0.0, 0.03290348005910621)
-#qch_lim=(0.0, 0.03290348005910621)
 
 #rho=tf.Variable(9.0)*100 #PI = 2.32e-9; # Well productivy index [m3/s/Pa]
 #PI = tf.Variable(2.15)*1e-9
-xc=np.array([pbc,pwc,qc])
-x0=np.array([pbmin,pwmin,qmin])
+
+
 # x=np.hstack(dataset_full[0:3])
 # xtest=np.array(dataset_test[0:3])
 def normalizar_x(x,xc,x0):
     xn=[(x[:,i]-x0[i])/xc[i] for i in range(3)]
     return np.array(xn).T
 
-# Normalizing factors
-prc,pr0=(1.4e7-1.2e7),1.2e7
-pm_c,pm0=(2.1e6-1.2e6),1.2e6
-def normalizar_u(u,fator):
-    aux=[]
-    u[2]=u[2]-pm0 
-    u[3]=u[3]-pr0
-    for i,valor in enumerate(u):
-        aux.append(valor/fator[i])
-    return np.hstack(aux)
+
+
 
 # xn=normalizar_x(x,xc,x0)
 # xtestn=normalizar_x(np.hstack(dataset_test[0:3]),xc,x0)
@@ -79,7 +47,19 @@ def split_sequences(sequences, n_steps_in, n_steps_out):
 
 
 
-def build_dataset(n_steps_in, n_steps_out,dados,batch_size):
+def build_dataset(n_steps_in, n_steps_out,dados,batch_size,parameters):
+    
+    
+    
+    def normalizar_u(u,fator):
+        aux=[]
+        u[2]=u[2]-parameters.u0[0] 
+        u[3]=u[3]-parameters.u0[1]
+        for i,valor in enumerate(u):
+            aux.append(valor/fator[i])
+        return np.hstack(aux)
+    
+    
     def reshape_data(dataset,length):
         dataset_new=[]
         for i in dataset:
@@ -129,12 +109,12 @@ def build_dataset(n_steps_in, n_steps_out,dados,batch_size):
     uplot=dataset_full[3:-1]
     Fig_u=plot_u(uplot)
     Fig_x=plot_states_BCS(x,tempo)
-    xn=normalizar_x(x,xc,x0)
+    xn=normalizar_x(x,parameters.xc,parameters.x0)
     print("Limites das exógenas")
     for i in dataset_full[3:7]:
         print(f"Max:{max(i)}, Min: {min(i)}")
     u=np.hstack(dataset_full[3:7])
-    un=normalizar_u(dataset_full[3:7],[60,100,pm_c,prc])
+    un=normalizar_u(dataset_full[3:7],parameters.uc)
     Figs={}
     Fig_xn=plot_states_BCS(xn,tempo,norm=True)
     uplot=[un[:,i] for i in range(4)]
