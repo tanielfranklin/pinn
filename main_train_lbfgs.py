@@ -67,7 +67,7 @@ dataset_adam=ds.adam_dataset()
 # xc=ds.parameters.xc
 # x0=ds.parameters.x0
 # y=ds.pack[0] 
-loss_history, trainstate,var_history=pinn.fit(dataset_adam, tf_epochs=400)#,adapt_w=True)  
+loss_history, trainstate,var_history=pinn.fit(dataset_adam, tf_epochs=200)#,adapt_w=True)  
 training_report=TrainingReport(pinn,loss_history,trainstate,var_history,ds)
 
 loss_history, trainstate, var_history=pinn.fit_LBFGS(ds.lbfgs_dataset(), nt_config)

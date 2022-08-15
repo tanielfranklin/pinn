@@ -103,12 +103,12 @@ class BuildingDataset(object):
         return Figs
     def prepare(self):
         
-        def normalizar_u(u,fator):
+        def normalizar_u(u):
             aux=[]
             u[2]=u[2]-self.parameters.u0[0] 
             u[3]=u[3]-self.parameters.u0[1]
             for i,valor in enumerate(u):
-                aux.append(valor/fator[i])
+                aux.append(valor/self.parameters.uc[i])
             return np.hstack(aux)
         
         self.x=np.hstack(self.dataset_full_noisy[0:3])
@@ -117,7 +117,7 @@ class BuildingDataset(object):
         for i in self.dataset_full_noisy[3:7]:
             print(f"Max:{max(i)}, Min: {min(i)}")
         self.u=np.hstack(self.dataset_full_noisy[3:7])
-        self.un=normalizar_u(self.dataset_full_noisy[3:7],self.parameters.uc)
+        self.un=normalizar_u(self.dataset_full_noisy[3:7])
         df = pd.DataFrame(np.hstack([self.un,self.xn]),columns=['fn','zn','pmn','prn','pbh','pwh','q'])
         df_u = pd.DataFrame(np.hstack([self.u]),columns=['f','z','pm','pr'])
         dset = df.values.astype(float)

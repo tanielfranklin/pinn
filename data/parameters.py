@@ -29,5 +29,5 @@ class Parameters(object):
     self.xc=np.array([self.pbc,self.pwc,self.qc])
     self.x0=np.array([self.pbmin,self.pwmin,self.qmin])
     self.uc=[60,100,self.pm_c,self.prc]
-    self.u0=[self.pr0,self.pm0]
+    self.u0=[self.pm0,self.pr0]
   
