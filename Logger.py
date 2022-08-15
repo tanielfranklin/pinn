@@ -1,18 +1,21 @@
 import tensorflow as tf
-import time
+import timeit
 import numpy as np
-from pandas import datetime
+import datetime
 class Logger(object):
   def __init__(self, frequency=10):
     print("TensorFlow version: {}".format(tf.__version__))
     print("Eager execution: {}".format(tf.executing_eagerly()))
     print("GPU-accerelated: {}".format(tf.test.is_gpu_available()))
 
-    self.start_time = time.time()
+    self.start_time =float(timeit.default_timer())
     self.frequency = frequency
 
   def __get_elapsed(self):
-    return datetime.fromtimestamp(time.time() - self.start_time).strftime("%M:%S")
+     elap=(float(timeit.default_timer()) - self.start_time)
+     print(elap)
+     print(f"{int(elap/60):2d}:{int(elap%60):2d}")
+     return f"{elap}:{int(elap%60)}"
 
   def __get_error_u(self):
     return self.error_fn()

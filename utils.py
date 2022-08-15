@@ -230,29 +230,7 @@ def evaluate_prediction(predictions, actual, model_name , start , end):
     print('')
 
 
-def prep_data_plot(model,train_X, train_y , test_X , test_y,xc,x0):  
-    y_pred_train=model.predict(train_X)
-    y_pred_train=y_pred_train.reshape(y_pred_train.shape[0]*y_pred_train.shape[1],y_pred_train.shape[2])
-    y_pred_test=model.predict(test_X)
-    y_pred_test=y_pred_test.reshape(y_pred_test.shape[0]*y_pred_test.shape[1],y_pred_test.shape[2])
-    n_steps_out=1
-    for i in range(y_pred_train.shape[0]):
-        k=i*n_steps_out
-        if k==0:
-            pred_train=y_pred_train[k:k+1,:]
-        pred_train=np.vstack((pred_train,y_pred_train[k:k+1,:]))
-        if k==y_pred_train.shape[0]:
-            #print(k)
-            break
-    
-    for i in range(y_pred_test.shape[0]):
-        k=i*n_steps_out
-        if k==0:
-            pred_test=y_pred_test[k:k+1,:]
-        pred_test=np.vstack((pred_test,y_pred_test[k:k+1,:]))
-        if k==y_pred_train.shape[0]:
-            break
-    return pred_train*xc+x0, pred_test*xc+x0
+
 
 def prep_data(model,x_test, y_test , start , end , last):
     #prepare test data X

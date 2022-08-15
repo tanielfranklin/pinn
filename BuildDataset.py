@@ -2,24 +2,13 @@ from utils import add_noise_norm, plot_u, plot_states_BCS
 import tensorflow as tf
 import numpy as np
 import pandas as pd
+from parameters import Parameters
 
 
-
-#rho=tf.Variable(9.0)*100 #PI = 2.32e-9; # Well productivy index [m3/s/Pa]
-#PI = tf.Variable(2.15)*1e-9
-
-
-# x=np.hstack(dataset_full[0:3])
-# xtest=np.array(dataset_test[0:3])
 def normalizar_x(x,xc,x0):
     xn=[(x[:,i]-x0[i])/xc[i] for i in range(3)]
     return np.array(xn).T
 
-
-
-
-# xn=normalizar_x(x,xc,x0)
-# xtestn=normalizar_x(np.hstack(dataset_test[0:3]),xc,x0)
 def split_data(n_in,n_out,data):
     a,b,c=split_sequences(data, n_in, n_out)
     x=a[:,:,:]
@@ -47,105 +36,115 @@ def split_sequences(sequences, n_steps_in, n_steps_out):
 
 
 
-def build_dataset(n_steps_in, n_steps_out,dados,batch_size,parameters):
+class BuildingDataset(object):
+    def __init__(self,n_steps_in, n_steps_out,dados,batch_size):
+        self.n_steps_in, self.n_steps_out,self.batch_size,self.parameters =n_steps_in, n_steps_out,batch_size,Parameters()
+        #test_y,test_X,train_X, train_y_full, u_train, 
+        self.tempo=dados['t']
+        self.train_X,self.train_y, self.u_train=None,None,None
+        self.pack_plot=None
+        self.dataset_full=self.dataset(dados)
+        self.dataset_full_noisy=self.dataset_noisy()
+        self.x,self.u,self.un,self.xn=None,None,None,None
+        self.train_dataset=None
+        self.train=None
+        self.pack=None
+        
+        self.prepare()
+        self.figs=self.gen_fig()
+        
     
-    
-    
-    def normalizar_u(u,fator):
-        aux=[]
-        u[2]=u[2]-parameters.u0[0] 
-        u[3]=u[3]-parameters.u0[1]
-        for i,valor in enumerate(u):
-            aux.append(valor/fator[i])
-        return np.hstack(aux)
-    
-    
-    def reshape_data(dataset,length):
-        dataset_new=[]
-        for i in dataset:
-            dataset_new.append(i.reshape([length,1]))
-        return dataset_new
-    
-    
-    fk=dados['U'][:,0:1]
-    zc=dados['U'][:,1:2]
-    x1=dados['x1']
-    x2=dados['x2']
-    x3=dados['x3']
-    pmc=dados['U'][:,2:3]
-    pr=dados['U'][:,3:4]
-    tempo=dados['t']
-    maxtime = fk.shape[0]
-    nsim=maxtime
-    dataset_full=[x1,x2,x3,fk,zc,pmc,pr,tempo]
-    dataset_full=reshape_data(dataset_full,nsim)
-    x1,x2,x3,fk,zc,pmc,pr,tempo=dataset_full
-
+    def dataset(self,dados):
+        def reshape_data(dataset,length):
+            dataset_new=[]
+            for i in dataset:
+                dataset_new.append(i.reshape([length,1]))
+            return dataset_new
+        fk=dados['U'][:,0:1]
+        zc=dados['U'][:,1:2]
+        x1=dados['x1']
+        x2=dados['x2']
+        x3=dados['x3']
+        pmc=dados['U'][:,2:3]
+        pr=dados['U'][:,3:4]
+        tempo=dados['t']
+        maxtime = fk.shape[0]
+        nsim=maxtime
+        dataset_full=[x1,x2,x3,fk,zc,pmc,pr,tempo]
+        dataset_full=reshape_data(dataset_full,nsim)
+        return dataset_full
+        
+    def dataset_noisy(self):
         #------------------------------------------------
-    ### Inserindo ruido
-    sigma=[0.01,0.01,0.01,0.005,0.001,0.01,0.01]
-    dataset_full_noisy=[]
-    for i,d in enumerate(dataset_full[0:-1]):
-        dataset_full_noisy.append(add_noise_norm(d,sigma[i]))
-    dataset_full_noisy.append(tempo)
-    dataset_full=dataset_full_noisy
-    #----------------------------------------------------
+        ### Inserindo ruido
+        sigma=[0.01,0.01,0.01,0.005,0.001,0.01,0.01]
+        dataset_full_noisy=[]
+        for i,d in enumerate(self.dataset_full[0:-1]):
+            dataset_full_noisy.append(add_noise_norm(d,sigma[i]))
+        dataset_full_noisy.append(self.tempo)
+        return dataset_full_noisy
+        #----------------------------------------------------
 
+        # x1,x2,x3,fk,zc,pmc,pr,tempo=dataset_full
+        #------------------------------------------------
+        # # Reducing dataset size
+    def gen_fig(self):
+        Figs={}            
+        uplot=self.dataset_full[3:-1]
+        Fig_u=plot_u(uplot)
+        Fig_x=plot_states_BCS(self.x,self.tempo)
+        uplot=[self.un[:,i] for i in range(4)]
+        Fig_un=plot_u(uplot)
+        Fig_xn=plot_states_BCS(self.xn,self.tempo,norm=True)
+        Figs["un"]=Fig_un
+        Figs["xn"]=Fig_xn
+        Figs["u"]=Fig_u
+        Figs["x"]=Fig_x
+        return Figs
+    def prepare(self):
+        
+        def normalizar_u(u,fator):
+            aux=[]
+            u[2]=u[2]-self.parameters.u0[0] 
+            u[3]=u[3]-self.parameters.u0[1]
+            for i,valor in enumerate(u):
+                aux.append(valor/fator[i])
+            return np.hstack(aux)
+        
+        self.x=np.hstack(self.dataset_full_noisy[0:3])
+        self.xn=normalizar_x(self.x,self.parameters.xc,self.parameters.x0)
+        print("Limites das exógenas")
+        for i in self.dataset_full_noisy[3:7]:
+            print(f"Max:{max(i)}, Min: {min(i)}")
+        self.u=np.hstack(self.dataset_full_noisy[3:7])
+        self.un=normalizar_u(self.dataset_full_noisy[3:7],self.parameters.uc)
+        df = pd.DataFrame(np.hstack([self.un,self.xn]),columns=['fn','zn','pmn','prn','pbh','pwh','q'])
+        df_u = pd.DataFrame(np.hstack([self.u]),columns=['f','z','pm','pr'])
+        dset = df.values.astype(float)
+        du_set = df_u.values.astype(float)
+        #dset_test=df_test.values.astype(float)
+        X,y,u_train=split_data(self.n_steps_in, self.n_steps_out,dset)
+        split_point = int(0.7*dset.shape[0])
+        split_point = int(0.98*dset.shape[0])
+        train_X_full , train_y_full, u_train = X[:split_point, :] , y[:split_point, :], u_train[:split_point, :]
+        test_X_full , test_y_full = X[split_point:, :] , y[split_point:, :]
+        uk=dset[0:split_point,0:4]
+        #Remove unmeasured variable q from training dataset
+        train_y=train_y_full[:,:,0:2]
+        train_X=train_X_full[:,:,:-1]
+        test_y=test_y_full[:,:,0:2]
+        test_X=test_X_full[:,:,:-1]
+        uk=tf.convert_to_tensor(uk, dtype=tf.float32) # u(k) para ODE
+        self.train_X=tf.convert_to_tensor(train_X, dtype=tf.float32) # X(k) para ODE
+        self.train_y=tf.convert_to_tensor(train_y, dtype=tf.float32) # y(k) para ODE
+        train_y_full=tf.convert_to_tensor(train_y_full, dtype=tf.float32) # y(k) para ODE
+        self.u_train=tf.convert_to_tensor(u_train, dtype=tf.float32) # y(k) para ODE
+        self.pack_plot=[train_X, train_y,test_X,test_y]
 
-
-    # dataset_full=[x1,x2,x3,fk,zc,pmc,pr,tempo]
-    # dataset_full=reshape_data(dataset_full,nsim)
-    x1,x2,x3,fk,zc,pmc,pr,tempo=dataset_full
-    #------------------------------------------------
-    # # Reducing dataset size
-    nsim=maxtime
-    dataset_limited=[]
-    for i in dataset_full:    
-        dataset_limited.append(i[0:nsim,:])
-    dataset_full=dataset_limited
-    x1,x2,x3,fk,zc,pmc,pr,tempo=dataset_limited
-    ts=1
-    x=np.hstack(dataset_full[0:3])
-    uplot=dataset_full[3:-1]
-    Fig_u=plot_u(uplot)
-    Fig_x=plot_states_BCS(x,tempo)
-    xn=normalizar_x(x,parameters.xc,parameters.x0)
-    print("Limites das exógenas")
-    for i in dataset_full[3:7]:
-        print(f"Max:{max(i)}, Min: {min(i)}")
-    u=np.hstack(dataset_full[3:7])
-    un=normalizar_u(dataset_full[3:7],parameters.uc)
-    Figs={}
-    Fig_xn=plot_states_BCS(xn,tempo,norm=True)
-    uplot=[un[:,i] for i in range(4)]
-    Fig_un=plot_u(uplot)
-    Figs["un"]=Fig_un
-    Figs["xn"]=Fig_xn
-    df = pd.DataFrame(np.hstack([un,xn]),columns=['fn','zn','pmn','prn','pbh','pwh','q'])
-    df_u = pd.DataFrame(np.hstack([u]),columns=['f','z','pm','pr'])
-    dset = df.values.astype(float)
-    du_set = df_u.values.astype(float)
-    #dset_test=df_test.values.astype(float)
-    X,y,u_train=split_data(n_steps_in, n_steps_out,dset)
-    split_point = int(0.7*dset.shape[0])
-    split_point = int(0.98*dset.shape[0])
-    train_X_full , train_y_full, u_train = X[:split_point, :] , y[:split_point, :], u_train[:split_point, :]
-    test_X_full , test_y_full = X[split_point:, :] , y[split_point:, :]
-    uk=dset[0:split_point,0:4]
-    #Remove unmeasured variable q from training dataset
-    train_y=train_y_full[:,:,0:2]
-    train_X=train_X_full[:,:,:-1]
-    test_y=test_y_full[:,:,0:2]
-    test_X=test_X_full[:,:,:-1]
-    uk=tf.convert_to_tensor(uk, dtype=tf.float32) # u(k) para ODE
-    train_X=tf.convert_to_tensor(train_X, dtype=tf.float32) # X(k) para ODE
-    train_y=tf.convert_to_tensor(train_y, dtype=tf.float32) # y(k) para ODE
-    train_y_full=tf.convert_to_tensor(train_y_full, dtype=tf.float32) # y(k) para ODE
-    u_train=tf.convert_to_tensor(u_train, dtype=tf.float32) # y(k) para ODE
-    train_dataset = tf.data.Dataset.from_tensor_slices((train_X,train_y, u_train))
-    train_dataset = train_dataset.batch(batch_size)
-   
-    Figs["u"]=Fig_u
-    Figs["x"]=Fig_x
-    return y,train_dataset,test_y,test_X,train_X, train_y_full, u_train, Figs
+        self.pack=y, train_y_full, u_train
+    def adam_dataset(self):
+        train_dataset = tf.data.Dataset.from_tensor_slices((self.train_X,self.train_y, self.u_train))
+        train_dataset = train_dataset.batch(self.batch_size)
+        return train_dataset
+        
 

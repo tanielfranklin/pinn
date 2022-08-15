@@ -1,6 +1,6 @@
 import numpy as np
 
-class parameters(object):
+class Parameters(object):
   def __init__(self):
     def Lim_c(xin):
       return xin[1]-xin[0]
