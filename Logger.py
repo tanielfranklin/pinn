@@ -1,5 +1,5 @@
 import tensorflow as tf
-import timeit
+import time
 import numpy as np
 import datetime
 class Logger(object):
@@ -8,14 +8,12 @@ class Logger(object):
     print("Eager execution: {}".format(tf.executing_eagerly()))
     print("GPU-accerelated: {}".format(tf.test.is_gpu_available()))
 
-    self.start_time =float(timeit.default_timer())
+    self.start_time =int(time.time())
     self.frequency = frequency
 
   def __get_elapsed(self):
-     elap=(float(timeit.default_timer()) - self.start_time)
-     print(elap)
-     print(f"{int(elap/60):2d}:{int(elap%60):2d}")
-     return f"{elap}:{int(elap%60)}"
+     elap=(int(time.time()) - self.start_time)
+     return f"{int(elap/60):2d}:{int(elap%60):2d}"
 
   def __get_error_u(self):
     return self.error_fn()
@@ -45,7 +43,7 @@ class Logger(object):
     print(f'==============Weights===============')
     print(f'[ wbc ,  w1 ,  w2 ,  w3 ]')
     print(f'{w}')
-    print('                                                    |======Common Residues=====| ED parameters|')
+    print('                                                    |==== Weigthed Residues ===|ODE parameters|')
     print('==============================================================================================================================')
     print('epoch | elap|  Total  | Loss BC |Loss ODE |  Test   | w1r1   | w2r2   |  w3r3  | rho |   PI   |')
     print('==============================================================================================================================')
