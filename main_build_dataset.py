@@ -1,12 +1,9 @@
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
-from BuildDataset import BuildingDataset
+from data.BuildDataset import BuildingDataset
 import pickle
-import json
-from pinn_BCS import pinn_vfm
-from Logger import Logger
-from utils import Struct, plot_result, prep_data_plot, store_model_files
+from data.utils import store_model_files
 
 # time = np.linspace(0, maxtime, 200) # Regular points inside the domain
 # Treinamento e validação
