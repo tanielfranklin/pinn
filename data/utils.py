@@ -115,7 +115,8 @@ def load_model_data(file_name):
         obj = pickle.load(open_file)
     return obj
 
-
+def restore_pinn_model():
+    return [load_model_data(local+'Loss.pk'), load_model_data(local+'trainstate.pk'),load_model_data(local+'vartrain.pk')]
 
 def plot_result(pred_train, pred_test, obs,xc,x0):   
     if obs.shape[-1]==2:

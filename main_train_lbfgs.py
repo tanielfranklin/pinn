@@ -63,17 +63,17 @@ dataset_adam = ds.adam_dataset()
 nt_config.maxIter = 300
 dataset_adam=ds.adam_dataset()
 loss_history, trainstate,var_history=pinn.fit(dataset_adam, tf_epochs=200)#,adapt_w=True)  
-training_report=TrainingReport(pinn,loss_history,trainstate,var_history,ds)
+training_report=TrainingReport(pinn,[loss_history,trainstate,var_history],ds)
 #------------------------ Some epochs with LBFGS --------------------------------
 loss_history, trainstate, var_history=pinn.fit_LBFGS(ds.lbfgs_dataset(), nt_config)
-training_report = TrainingReport(pinn, loss_history, trainstate, var_history, ds)
+training_report = TrainingReport(pinn, [loss_history, trainstate, var_history], ds)
 #------------------------ Set new weights --------------------------------
 pinn.lamb_l1=tf.constant(2.0, dtype=tf.float32) #x3 residue weight
 pinn.lamb_l2=tf.constant(1.9, dtype=tf.float32) #x3 residue weight
 pinn.lamb_l3=tf.constant(0.01, dtype=tf.float32) #x3 residue weight
 #------------------------ Remaining epochs with LBFGS --------------------------------
 loss_history, trainstate, var_history=pinn.fit_LBFGS(ds.lbfgs_dataset(), nt_config)
-training_report = TrainingReport(pinn, loss_history, trainstate, var_history, ds)
+training_report = TrainingReport(pinn, [loss_history, trainstate, var_history], ds)
 # plt.show()
 #------------------------ Saving files --------------------------------
 #Uncomment the lines below to save the model

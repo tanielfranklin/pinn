@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 
 Font=14
 class TrainingReport():
-    def __init__(self,model,loss_history,trainstate,var_history,ds):
+    def __init__(self,model,training_data,ds):
+        loss_history,trainstate,var_history=training_data
         self.pack_plot=ds.pack_plot
         self.x0=ds.parameters.x0
         self.xc=ds.parameters.xc
