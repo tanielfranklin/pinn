@@ -40,7 +40,7 @@ rho=950
 PI=2.32*1e-9
 start_rho=0.9*950/rho
 start_PI=0.9*2.32*1e-9/PI
-var=[start_rho, start_PI] # parâmetros normalizados
+var=[start_rho, start_PI] # normalized parameters
 n_features=6 # Network inputs  (fk, zc,pmc,pr, x1,x2)
 nt_config.maxIter = 100
 Nc=10
@@ -57,10 +57,12 @@ pinn.lamb_l2=tf.constant(1.0, dtype=tf.float32) #x3 residue weight
 pinn.lamb_l3=tf.constant(1.0, dtype=tf.float32) #x3 residue weight
 # #######################################
 dataset_adam=ds.adam_dataset()
-loss_history, trainstate,var_history=pinn.fit(dataset_adam, tf_epochs=5)#,adapt_w=True)  
+loss_history, trainstate,var_history=pinn.fit(dataset_adam, tf_epochs=200)#,adapt_w=True)  
 training_report=TrainingReport(pinn,loss_history,trainstate,var_history,ds)
-#plt.show()
+#plt.show() # Uncomment to see the graphics
 
-folder_string="model_01"
-objects2save={"Loss":loss_history,"trainstate":trainstate,"vartrain":var_history}
-save_model_files(folder_string,objects2save,pinn)
+
+#Uncomment the lines below to save the model
+# folder_string="model_adam_200"
+# objects2save={"Loss":loss_history,"trainstate":trainstate,"vartrain":var_history}
+# save_model_files(folder_string,objects2save,pinn)

@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from data.pinn_BCS import pinn_vfm
 
 from data.Logger import Logger
-from data.utils import Struct
+from data.utils import Struct, save_model_files
 from data.TrainingReport import TrainingReport
 
 # time = np.linspace(0, maxtime, 200) # Regular points inside the domain
@@ -60,7 +60,7 @@ pinn.lamb_l3 = tf.constant(1.0, dtype=tf.float32)  # x3 residue weight
 # #######################################
 # Starting Training with adam
 dataset_adam = ds.adam_dataset()
-nt_config.maxIter = 100
+nt_config.maxIter = 300
 dataset_adam=ds.adam_dataset()
 loss_history, trainstate,var_history=pinn.fit(dataset_adam, tf_epochs=200)#,adapt_w=True)  
 training_report=TrainingReport(pinn,loss_history,trainstate,var_history,ds)
@@ -76,5 +76,8 @@ loss_history, trainstate, var_history=pinn.fit_LBFGS(ds.lbfgs_dataset(), nt_conf
 training_report = TrainingReport(pinn, loss_history, trainstate, var_history, ds)
 # plt.show()
 #------------------------ Saving files --------------------------------
-
+#Uncomment the lines below to save the model
+# folder_string="model_adam_lbfgs"
+# objects2save={"Loss":loss_history,"trainstate":trainstate,"vartrain":var_history}
+# save_model_files(folder_string,objects2save,pinn)
 
