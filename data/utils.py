@@ -1,6 +1,23 @@
 import tensorflow as tf
 import numpy as np
 from matplotlib import pyplot as plt
+import os
+import pickle
+
+def save_model_files(folder_string,dict_of_objects,model):
+    os.makedirs(folder_string, exist_ok=True)    
+    for keys,item in dict_of_objects.items():
+        store_model_files([folder_string+"/"+keys+".pk"],[item])
+
+    model_json = model.u_model.to_json()
+    with open(folder_string+"/"+"model.json", "w") as json_file:
+        json_file.write(model_json)
+    model.u_model.save_weights(folder_string+"/"+"model.h5")
+    print(f"Saved in {folder_string}")
+
+
+
+
 
 def test_res(y,u,model):
     model.rho=tf.Variable(1.0, dtype=tf.float32)
@@ -91,7 +108,7 @@ def store_model_files(file_name_list,obj_list):
         with open(file_name_list[i], "wb") as open_file:
             pickle.dump(obj_list[i], open_file)
    
-    print("Saved files")
+#     print("Saved files")
 
 def load_model_data(file_name):
     with open(file_name, 'rb') as open_file:
