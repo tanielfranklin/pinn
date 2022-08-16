@@ -60,7 +60,7 @@ pinn.lamb_l3 = tf.constant(1.0, dtype=tf.float32)  # x3 residue weight
 # #######################################
 # Starting Training with adam
 dataset_adam = ds.adam_dataset()
-nt_config.maxIter = 300
+nt_config.maxIter = 200
 dataset_adam=ds.adam_dataset()
 loss_history, trainstate,var_history=pinn.fit(dataset_adam, tf_epochs=200)#,adapt_w=True)  
 training_report=TrainingReport(pinn,[loss_history,trainstate,var_history],ds)

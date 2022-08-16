@@ -13,13 +13,12 @@ dados_test = np.load('./dataset/BCS_data_train_limitado_f_zc_pm_pr_oper.npz')
 
 # building dataset for training
 n_steps_in, n_steps_out = 20, 1  # convert into input/output many-to-one
-ds=BuildingDataset(n_steps_in, n_steps_out, dados, batch_size=500)
+split_point=int(0.7*dados["x1"].shape[0]) #percentage of data dedicated for training
+ds=BuildingDataset(n_steps_in, n_steps_out, dados,split_point, batch_size=500)
 
 file_name="dataset01.pk"
 def save_object(obj, filename):
     with open(filename, 'wb') as outp:
         pickle.dump(obj, outp, pickle.HIGHEST_PROTOCOL)
-save_object(ds,file_name)
-# file_name="dataset01.json"
-# with open(file_name, "w") as file_object:
-#     json.dump(ds, file_object) 
+#save_object(ds,file_name)
+plt.show()

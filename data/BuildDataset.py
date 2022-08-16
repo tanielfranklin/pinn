@@ -37,9 +37,10 @@ def split_sequences(sequences, n_steps_in, n_steps_out):
 
 
 class BuildingDataset(object):
-    def __init__(self,n_steps_in, n_steps_out,dados,batch_size):
+    def __init__(self,n_steps_in, n_steps_out,dados,split_point,batch_size):
         self.n_steps_in, self.n_steps_out,self.batch_size,self.parameters =n_steps_in, n_steps_out,batch_size,Parameters()
-        #test_y,test_X,train_X, train_y_full, u_train, 
+        #test_y,test_X,train_X, train_y_full, u_train,
+        self.split_point=split_point 
         self.tempo=dados['t']
         self.train_X,self.train_y, self.u_train=None,None,None
         self.pack_plot=None
@@ -124,11 +125,10 @@ class BuildingDataset(object):
         du_set = df_u.values.astype(float)
         #dset_test=df_test.values.astype(float)
         X,y,u_train=split_data(self.n_steps_in, self.n_steps_out,dset)
-        split_point = int(0.7*dset.shape[0])
-        split_point = int(0.98*dset.shape[0])
-        train_X_full , train_y_full, u_train = X[:split_point, :] , y[:split_point, :], u_train[:split_point, :]
-        test_X_full , test_y_full = X[split_point:, :] , y[split_point:, :]
-        uk=dset[0:split_point,0:4]
+        
+        train_X_full , train_y_full, u_train = X[:self.split_point, :] , y[:self.split_point, :], u_train[:self.split_point, :]
+        test_X_full , test_y_full = X[self.split_point:, :] , y[self.split_point:, :]
+        uk=dset[0:self.split_point,0:4]
         #Remove unmeasured variable q from training dataset
         train_y=train_y_full[:,:,0:2]
         train_X=train_X_full[:,:,:-1]

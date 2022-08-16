@@ -58,11 +58,11 @@ pinn.lamb_l3=tf.constant(1.0, dtype=tf.float32) #x3 residue weight
 # #######################################
 dataset_adam=ds.adam_dataset()
 loss_history, trainstate,var_history=pinn.fit(dataset_adam, tf_epochs=200)#,adapt_w=True)  
-training_report=TrainingReport(pinn,loss_history,trainstate,var_history,ds)
-#plt.show() # Uncomment to see the graphics
+training_report=TrainingReport(pinn,[loss_history,trainstate,var_history],ds)
+plt.show() # Uncomment to see the graphics
 
 
 #Uncomment the lines below to save the model
-# folder_string="model_adam_200"
-# objects2save={"Loss":loss_history,"trainstate":trainstate,"vartrain":var_history}
-# save_model_files(folder_string,objects2save,pinn)
+folder_string="model_adam_200"
+objects2save={"Loss":loss_history,"trainstate":trainstate,"vartrain":var_history}
+save_model_files(folder_string,objects2save,pinn)

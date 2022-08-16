@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from data.pinn_BCS import pinn_vfm
 
 from data.Logger import Logger
-from data.utils import Struct, load_model_data
+from data.utils import Struct, restore_pinn_model
 from data.TrainingReport import TrainingReport
 
 
@@ -40,10 +40,8 @@ pinn.lamb_l3 = tf.constant(1.0, dtype=tf.float32)  # x3 residue weight
 # #######################################
 local="model_adam_lbfgs/"
 pinn.u_model.load_weights(local+'model.h5')
-
-
-pinn_restored=restore_pinn_model()
-
+pinn_restored=restore_pinn_model(local)
+######################################
 training_report = TrainingReport(pinn, pinn_restored, ds)
 plt.show() # Uncomment to see the graphics
 
