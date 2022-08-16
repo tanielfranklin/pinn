@@ -52,7 +52,7 @@ class BuildingDataset(object):
         self.pack=None
         
         self.prepare()
-        self.figs=self.gen_fig()
+        # self.figs=self.gen_fig()
         
     
     def dataset(self,dados):

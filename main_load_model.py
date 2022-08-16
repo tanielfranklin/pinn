@@ -45,8 +45,3 @@ pinn_restored=restore_pinn_model(local)
 training_report = TrainingReport(pinn, pinn_restored, ds)
 plt.show() # Uncomment to see the graphics
 
-
-# Uncomment the lines below to save the model
-# folder_string="model_adam_200"
-# objects2save={"Loss":loss_history,"trainstate":trainstate,"vartrain":var_history}
-# save_model_files(folder_string,objects2save,pinn)

@@ -37,41 +37,7 @@ class LossHistory(object):
         self.loss_test.append(loss_test)
         #self.metrics_test.append(metrics_test)
 
-    def plot_loss_res(self):
-        # loss_train = np.sum(losshistory.loss_train, axis=0)
-        # loss_test = np.sum(losshistory.loss_test, axis=0)
-        loss_train = self.loss_train
-        loss_train_bc = self.loss_train_bc
-        loss_train_f = self.loss_train_f
-        loss_train_x1 = self.loss_train_x1
-        loss_train_x2 = self.loss_train_x2
-        loss_train_x3 = self.loss_train_x3
-        loss_test = self.loss_test
-
-        Fig=plt.figure(figsize=(10, 4))
-        ax1=Fig.add_subplot(1,1,1)
-        ax1.semilogy(self.steps, loss_train,'--k', label="Training loss")
-        ax1.semilogy(self.steps, loss_train_x1,':',lw=2, label="$\mathcal{L}_{\mathbf{y}_1}$")
-        ax1.semilogy(self.steps, loss_train_bc, label="$\mathcal{L}_{\mathbf{BC}}$")
-        ax1.semilogy(self.steps, loss_train_x2,':',lw=2, label="$\mathcal{L}_{\mathbf{y}_2}$")
-        #plt.semilogy(self.steps, loss_train_f,'--k', label="ode")
-        ax1.semilogy(self.steps, loss_test,'-k',lw=2, label="Validation loss")
-
-
-        ax1.semilogy(self.steps, loss_train_x3,':',lw=2, label="$\mathcal{L}_{\mathbf{y}_3}$")
-        ax1.grid()
-
-        # for i in range(len(losshistory.metrics_test[0])):
-        #     plt.semilogy(
-        #         losshistory.steps,
-        #         np.array(losshistory.metrics_test)[:, i],
-        #         label="Test metric",
-        #     )
-        plt.setp(ax1.get_xticklabels(), fontsize=Font)
-        plt.setp(ax1.get_yticklabels(), fontsize=Font)
-        plt.xlabel("Epochs",fontsize=self.Font)
-        plt.legend(bbox_to_anchor=(0.9, 1.0), ncol = 3,fontsize=self.Font)
-        return Fig
+    
     
     def plot_loss(self):
         # loss_train = np.sum(losshistory.loss_train, axis=0)
