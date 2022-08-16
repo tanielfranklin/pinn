@@ -115,45 +115,7 @@ def load_model_data(file_name):
         obj = pickle.load(open_file)
     return obj
 
-def plot_test(yp, obs, u_test,step):
-        Font=14
-        erro=tf.square(obs[:,:,:] - yp[:,:,0:3])
-        yp=yp[:,step,:]*xc+x0
-        obs=obs[:,step,:]*xc+x0
-        u_test=u_test[:,step,:]
-        k=np.arange(0,yp.shape[0])/60
-        Fig=plt.figure(figsize=(10, 9))
-        sc=[1/1e5, 1/1e5,3600]
-        sc_u=[60, 100,1/1e5,1/1e5]
-        uc=[60,100,pm_c,prc]
-        u0=[0,0,pm0,pr0]
-        scu=[1,1,1/1e5,1/1e5]
-        
-        label=["$P_{bh}(bar)$","$P_{wh}(bar)$", "$q (m^3/h)$"]
-        label_u = ['$f(Hz)$',r'$Z_c$(\%)', "$p_{m} (bar)$","$p_{r} (bar)$"];
-        for i,lb in enumerate(label):        
-            ax1=Fig.add_subplot(len(label+label_u),1,i+1)
-            ax1.plot(k, obs[:,i]*sc[i],"-k", label='GroundTruth')
-            ax1.plot(k, yp[:,i]*sc[i],":",color='blue',lw=2,label=f"Prediction (MSE: {tf.reduce_mean(erro).numpy():0.3f})")
-            ax1.set_ylabel(lb,  fontsize=Font)
-            ax1.set_xticklabels([])
-            
-            ax1.grid(True)
-            plt.setp(ax1.get_yticklabels(), fontsize=Font)  
-        plt.legend(bbox_to_anchor=(1, 3.5), ncol = 2,fontsize=Font)
-        #plt.legend()
-        for i,lb in enumerate(label_u):
-            ax1=Fig.add_subplot(len(label+label_u),1,i+1+3)
-            ax1.plot(k, (u_test[:,i]*uc[i]+u0[i])*scu[i],"-k")
-            ax1.set_ylabel(lb,  fontsize=Font)
-            ax1.grid(True)
-            if i!=3:
-                ax1.set_xticklabels([])
-            plt.setp(ax1.get_yticklabels(), fontsize=Font)  
-        ax1.set_xlabel('$Time (min)$' ,  fontsize=Font)
-        plt.setp(ax1.get_xticklabels(), fontsize=Font)
-             
-        return Fig
+
 
 def plot_result(pred_train, pred_test, obs,xc,x0):   
     if obs.shape[-1]==2:
@@ -234,41 +196,10 @@ def plot_multistep(history, prediction1 , groundtruth , start , end):
     ax2.set_xlabel('Time(s)' ,  fontsize=Font)
     plt.legend(bbox_to_anchor=(0.9, -0.2), ncol = 3)
 
-# Calculate MAE and RMSE
-def evaluate_prediction(predictions, actual, model_name , start , end):
-    errors = predictions - actual
-    mse = np.square(errors).mean()
-    rmse = np.sqrt(mse)
-    mae = np.abs(errors).mean()    
-    print("Test Data from {} to {}".format(start, end))
-    print('Mean Absolute Error: {:.3f}'.format(mae))
-    print('Root Mean Square Error: {:.3f}'.format(rmse))
-    print('')
-    print('')
 
 
 
 
-def prep_data(model,x_test, y_test , start , end , last):
-    #prepare test data X
-    dataset_test = x_test
-    dataset_test_X = dataset_test[start:end, :]
-    print("dataset_test_X :",dataset_test_X.shape)
-    test_X_new = dataset_test_X.reshape(1,dataset_test_X.shape[0],dataset_test_X.shape[1])
-    print("test_X_new :",test_X_new.shape)#prepare past and groundtruth
-    npast=end-5*n_steps_in
-    past_data = y_test[npast:end , :]
-    dataset_test_y = y_test[end:last , :]
-    print("dataset_test_y :",dataset_test_y.shape)
-    print("past_data :",past_data.shape)#predictions
-    y_pred = model.predict(test_X_new)
-    y_pred_inv = y_pred
-    y_pred_inv = y_pred_inv.reshape(n_steps_out,3)
-    y_pred_inv = y_pred_inv[:,:]
-    print("y_pred :",y_pred.shape)
-    print("y_pred_inv :",y_pred_inv.shape)
-    
-    return y_pred_inv , dataset_test_y , past_data#start can be any point in the test data (1258)
 
 
 
@@ -311,43 +242,8 @@ def invert_scale(scaler, X, value):
 	inverted = scaler.inverse_transform(array)	# reescala
 	return inverted[0, -1] # retorna yhat (value) reescalonado
 
-# date-time parsing function for loading the dataset
-def parser(x):
-	return datetime.strptime('190'+x, '%Y-%m')
- 
-# frame a sequence as a supervised learning problem
-def timeseries_to_supervised(data, lag=1):
-	df = pd.DataFrame(data)
-	columns = [df.shift(i) for i in range(1, lag+1)]
-	columns.append(df)
-	df = concat(columns, axis=1)
-	df.fillna(0, inplace=True)
-	return df
- 
-# create a differenced series
-def difference(dataset, interval=1):
-	diff = list()
-	for i in range(interval, len(dataset)):
-		value = dataset[i] - dataset[i - interval]
-		diff.append(value)
-	return Series(diff)
- 
-# invert differenced value
-def inverse_difference(history, yhat, interval=1):
-	return yhat + history[-interval]
- 
-# scale train and test data to [-1, 1]
-def scale(train, test):
-	# fit scaler
-	scaler = MinMaxScaler(feature_range=(-1, 1))
-	scaler = scaler.fit(train)
-	# transform train
-	train = train.reshape(train.shape[0], train.shape[1])
-	train_scaled = scaler.transform(train)
-	# transform test
-	test = test.reshape(test.shape[0], test.shape[1])
-	test_scaled = scaler.transform(test)
-	return scaler, train_scaled, test_scaled
+
+
 
 def forecast_on_batch(model, batch_size, X):
 	X = X.reshape(batch_size, 1, len(X))
