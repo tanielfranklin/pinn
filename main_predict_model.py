@@ -5,6 +5,7 @@ from data.pinn_BCS import pinn_vfm
 from data.Logger import Logger
 from data.utils import restore_pinn_model
 from data.TrainingReport import TrainingReport
+from data.PinnPredictor import PinnPredictor
 
 
 with open("dataset_opera.pk", 'rb') as open_file:
@@ -35,18 +36,26 @@ pinn.lamb_l1 = tf.constant(1.0, dtype=tf.float32)  # x1 residue weight
 pinn.lamb_l2 = tf.constant(1.0, dtype=tf.float32)  # x3 residue weight
 pinn.lamb_l3 = tf.constant(1.0, dtype=tf.float32)  # x3 residue weight
 # #######################################
-local = "model_adam_200/"
+local = "model_adam_lbfgs/"
 #local = "model_adam_lbfgs/"
 pinn.u_model.load_weights(local+'model.h5')
 pinn_restored = restore_pinn_model(local)
 ######################################
-training_report = TrainingReport(pinn, pinn_restored, ds)
-training_report.gen_plot_result()
-training_report.gen_var_plot()
-training_report.gen_plot_loss_res()
+# training_report = TrainingReport(pinn, pinn_restored, ds)
+# training_report.gen_plot_result()
+# training_report.gen_var_plot()
+# training_report.gen_plot_loss_res()
+predictor=PinnPredictor(pinn)
+ds.train_X
+#print(ds.train_X[0:1,:,:])
+x0=ds.train_X[0:1]
 
 
-
+for i in range(3):
+    y=predictor.next_step(x0)
+    
+    
+plt.plot(ypred[0])
 # print(pinn.u_model(pinn.test_X))
 # print(pinn.u_model(ds.train_X))
 
