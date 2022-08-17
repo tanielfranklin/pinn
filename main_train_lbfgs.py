@@ -68,10 +68,13 @@ pinn.lamb_l3=tf.constant(0.01, dtype=tf.float32) #x3 residue weight
 #------------------------ Remaining epochs with LBFGS --------------------------------
 loss_history, trainstate, var_history=pinn.fit_LBFGS(ds.lbfgs_dataset(), nt_config)
 training_report = TrainingReport(pinn, [loss_history, trainstate, var_history], ds)
+training_report.gen_plot_result()
+training_report.gen_var_plot()
+training_report.gen_plot_loss_res()
 plt.show()
 #------------------------ Saving files --------------------------------
 #Uncomment the lines below to save the model
-# folder_string="model_adam_lbfgs"
-# objects2save={"Loss":loss_history,"trainstate":trainstate,"vartrain":var_history}
-# save_model_files(folder_string,objects2save,pinn)
+folder_string="model_adam_lbfgs"
+objects2save={"Loss":loss_history,"trainstate":trainstate,"vartrain":var_history}
+save_model_files(folder_string,objects2save,pinn)
 

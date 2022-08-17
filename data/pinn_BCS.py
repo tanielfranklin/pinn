@@ -216,8 +216,7 @@ class pinn_vfm(object):
                 #tf.print("Iter:", f.iter, loss:{loss_value:.4e}")
                 #tf.print("Iter:", f.iter, "loss:", loss_value)
                 custom_log_res=f"[{loss_x1.numpy()*self.lamb_l1.numpy():.2e},{loss_x2.numpy()*self.lamb_l2.numpy():.2e},{loss_x3.numpy()*self.lamb_l3.numpy():.2e}]"
-                custom_log=f"{self.rho.numpy()*rho:.1f} {self.PI.numpy()*PI*3.6e8:.4f}\
-                ({(100*np.abs(950-self.rho.numpy()*rho)/950):1.3f}%) ({(100*np.abs(PI-self.PI.numpy()*PI)/PI):1.3f}%)"
+                custom_log=f"{self.rho.numpy()*rho:.1f} {self.PI.numpy()*PI*3.6e8:.4f} ({(100*np.abs(950-self.rho.numpy()*rho)/950):1.3f}%) ({(100*np.abs(PI-self.PI.numpy()*PI)/PI):1.3f}%)"
                 #custom_log=f" lambda=[{self.lamb_l1:.1f},{self.lamb_l2:.1f},{self.lamb_l3:.1f}], rho={self.rho.numpy()*rho:.1f}, PI={self.PI.numpy()*PI:.2e}"
                 self.logger.log_train_epoch(f.iter.numpy(), loss_value.numpy(),loss_f.numpy(), loss_bc.numpy(),custom=custom_log_res+custom_log)
                 self.losshistory.append(
@@ -438,7 +437,8 @@ class pinn_vfm(object):
         return grads,loss_bc,self.lamb_l1*loss_x1,self.lamb_l2*loss_x2,self.lamb_l3*loss_x3,loss_value,loss_f
             
     
-    def fit(self, train_dataset, tf_epochs=5000,adapt_w=False):
+    def fit(self, train_data, tf_epochs=5000,adapt_w=False):
+        train_dataset,self.test_X,self.test_y=train_data
         self.logger.set_error_fn(self.erro)
         if adapt_w==True:
             self.lamb_l1,self.lamb_l2,self.lamb_l3,self.lamb_bc=self.GetLambStates(self.lamb_l1,
@@ -536,8 +536,9 @@ class pinn_vfm(object):
         
 
     def fit_LBFGS(self, dataset, nt_config):
+        train_x,train_y,u_train,self.test_X,self.test_y=dataset
         self.logger.set_error_fn(self.erro)
-        train_x,train_y, u_train=dataset
+        
         #self.logger.log_train_start(self)
         
         self.logger.log_train_opt("LBFGS",self.pinn_mode,self.get_lamb_weights())

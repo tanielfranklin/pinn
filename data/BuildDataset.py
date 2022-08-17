@@ -50,7 +50,10 @@ class BuildingDataset(object):
         self.train_dataset=None
         self.train=None
         self.pack=None
+        self.test_y=None
+        self.test_X=None
         
+    
         self.prepare()
         # self.figs=self.gen_fig()
         
@@ -132,22 +135,22 @@ class BuildingDataset(object):
         #Remove unmeasured variable q from training dataset
         train_y=train_y_full[:,:,0:2]
         train_X=train_X_full[:,:,:-1]
-        test_y=test_y_full[:,:,0:2]
-        test_X=test_X_full[:,:,:-1]
+        self.test_y=test_y_full[:,:,0:2]
+        self.test_X=test_X_full[:,:,:-1]
         uk=tf.convert_to_tensor(uk, dtype=tf.float32) # u(k) para ODE
         self.train_X=tf.convert_to_tensor(train_X, dtype=tf.float32) # X(k) para ODE
         self.train_y=tf.convert_to_tensor(train_y, dtype=tf.float32) # y(k) para ODE
         train_y_full=tf.convert_to_tensor(train_y_full, dtype=tf.float32) # y(k) para ODE
         self.u_train=tf.convert_to_tensor(u_train, dtype=tf.float32) # y(k) para ODE
-        self.pack_plot=[train_X, train_y,test_X,test_y]
+        self.pack_plot=[train_X, train_y,self.test_X,self.test_y]
 
         self.pack=y, train_y_full, u_train
     def adam_dataset(self):
         train_dataset = tf.data.Dataset.from_tensor_slices((self.train_X,self.train_y, self.u_train))
         train_dataset = train_dataset.batch(self.batch_size)
-        return train_dataset
+        return [train_dataset,self.test_X,self.test_y] 
     def lbfgs_dataset(self):
-        return [self.train_X,self.train_y,self.u_train]
+        return [self.train_X,self.train_y,self.u_train,self.test_X,self.test_y]
 
         
 
