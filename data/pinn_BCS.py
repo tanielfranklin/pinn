@@ -5,7 +5,8 @@ from keras.layers import Dense
 from keras.layers import Dropout
 from keras.layers import TimeDistributed
 from keras.layers import RepeatVector
-from data.LossHistory import LossHistory,VarHistory
+from data.LossHistory import LossHistory
+from data.VarHistory import VarHistory
 from data.TrainState import TrainState
 import tensorflow_probability as tfp
 from data.utils import dydt, get_abs_max_grad

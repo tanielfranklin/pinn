@@ -71,7 +71,7 @@ training_report = TrainingReport(pinn, [loss_history, trainstate, var_history], 
 plt.show()
 #------------------------ Saving files --------------------------------
 #Uncomment the lines below to save the model
-folder_string="model_adam_lbfgs"
-objects2save={"Loss":loss_history,"trainstate":trainstate,"vartrain":var_history}
-save_model_files(folder_string,objects2save,pinn)
+# folder_string="model_adam_lbfgs"
+# objects2save={"Loss":loss_history,"trainstate":trainstate,"vartrain":var_history}
+# save_model_files(folder_string,objects2save,pinn)
 
