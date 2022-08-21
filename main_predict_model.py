@@ -1,9 +1,10 @@
 import tensorflow as tf
 import pickle
 import matplotlib.pyplot as plt
+import numpy as np
 from data.pinn_BCS import pinn_vfm
 from data.Logger import Logger
-from data.utils import restore_pinn_model
+from data.utils import restore_pinn_model, plot_test
 from data.TrainingReport import TrainingReport
 from data.PinnPredictor import PinnPredictor
 
@@ -51,12 +52,32 @@ ds.train_X
 x0=ds.train_X[0:1]
 
 
-for i in range(3):
-    y=predictor.next_step(x0)
+# for i in range(3):
+#     y=predictor.next_step(x0)
+#     x0=y
+#     print(y)
+
+def free_predict(tstart,nsim,ds,model):
+    X=ds.train_X[tstart:tstart+1,:,:]
+    y=ds.train_y_full[tstart:tstart+nsim+1,:,:]
+    u=ds.train_X[tstart:tstart+nsim+1,:,:]
+    U=ds.train_X[tstart:tstart+nsim+1,:,:4]
+    Xx=X[:,:,-2:]
+    X0=X
+    y0=model.predict(X0)[:,0:1,:]
+    pred=y0
+    for i in range(nsim):
+        Xx=tf.concat([Xx[:,1:,:],y0[:,:,:-1]],1) # Remove o instante mais antigo e atualiza o vetor de estados com a nova predição (remove q) 
+        #print(U[i:i+1,:,:].shape)
+        X0=tf.concat([U[i:i+1,:,:],Xx],2) # Remonta o vetor de entrada da rede (exógenas+saidas)
+        y0=model.predict(X0)[:,0:1,:]
+        pred=tf.concat([pred,y0[:,0:1,:]],0)
+    return pred,y,u
     
-    
-plt.plot(ypred[0])
-# print(pinn.u_model(pinn.test_X))
-# print(pinn.u_model(ds.train_X))
+tstart=310
+nsim=300
+pred, yreal, ureal=free_predict(tstart,nsim,ds,predictor.model)
+#np.square(yreal[:,0,2]- pred[:,0,2])
+FigFree=plot_test(yreal, pred,[ds.parameters.xc,ds.parameters.x0])
 
 plt.show()  # Uncomment to see the graphics

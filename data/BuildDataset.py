@@ -42,7 +42,7 @@ class BuildingDataset(object):
         #test_y,test_X,train_X, train_y_full, u_train,
         self.split_point=split_point 
         self.tempo=dados['t']
-        self.train_X,self.train_y, self.u_train=None,None,None
+        self.train_X,self.train_y,self.train_y_full, self.u_train=None,None,None,None
         self.pack_plot=None
         self.dataset_full=self.dataset(dados)
         self.dataset_full_noisy=self.dataset_noisy()
@@ -51,9 +51,7 @@ class BuildingDataset(object):
         self.train=None
         self.pack=None
         self.test_y=None
-        self.test_X=None
-        
-    
+        self.test_X=None   
         self.prepare()
         # self.figs=self.gen_fig()
         
@@ -135,12 +133,12 @@ class BuildingDataset(object):
         #Remove unmeasured variable q from training dataset
         train_y=train_y_full[:,:,0:2]
         train_X=train_X_full[:,:,:-1]
-        self.test_y=test_y_full[:,:,0:2]
+        self.test_y=test_y_full[:,:,0:3]
         self.test_X=test_X_full[:,:,:-1]
         uk=tf.convert_to_tensor(uk, dtype=tf.float32) # u(k) para ODE
         self.train_X=tf.convert_to_tensor(train_X, dtype=tf.float32) # X(k) para ODE
         self.train_y=tf.convert_to_tensor(train_y, dtype=tf.float32) # y(k) para ODE
-        train_y_full=tf.convert_to_tensor(train_y_full, dtype=tf.float32) # y(k) para ODE
+        self.train_y_full=tf.convert_to_tensor(train_y_full, dtype=tf.float32) # y(k) para ODE
         self.u_train=tf.convert_to_tensor(u_train, dtype=tf.float32) # y(k) para ODE
         self.pack_plot=[train_X, train_y,self.test_X,self.test_y]
 

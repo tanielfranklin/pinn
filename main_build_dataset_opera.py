@@ -13,7 +13,7 @@ dados=dados_opera
 
 # building dataset for training
 n_steps_in, n_steps_out = 20, 1  # convert into input/output many-to-one
-split_point=int(0.7*dados["x1"].shape[0]) #percentage of data dedicated for training
+split_point=int(0.98*dados["x1"].shape[0]) #percentage of data dedicated for training
 ds=BuildingDataset(n_steps_in, n_steps_out, dados,split_point, batch_size=500)
 ds.gen_fig()
 file_name="dataset_opera.pk"

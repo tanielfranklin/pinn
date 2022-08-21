@@ -4,6 +4,63 @@ from matplotlib import pyplot as plt
 import os
 import pickle
 
+def plot_test(y,yp,norm):
+    #ind defines timestep of output to plot
+    xc,x0=norm
+    #yp=model.predict(entradas)
+    
+    MSE= [np.mean(np.square(y[:,0,0]- yp[:,0,0])),
+        np.mean(np.square(y[:,0,1]- yp[:,0,1])),
+        np.mean(np.square(y[:,0,2]- yp[:,0,2]))]
+    MSE_all=np.mean(np.square(y[:,0,:]- yp[:,0,:]))
+    yp=yp[:,0,:]
+    y=y[:,0,:]
+    yp=(yp*xc+x0)
+    y=y*xc+x0
+    k=np.arange(y.shape[0])
+    #print(y[:,0:1].shape)
+    plt.figure(figsize=(20, 4))
+    Fig=plt.figure()
+    Fig.suptitle(f"Test Data MSE = [{MSE_all:.1e}] , [{MSE[0]:.1e}, {MSE[1]:.1e}, {MSE[2]:.1e}]")
+    #plt.title(f"Test Data , MSE = [{MSE[0]:.1e}, {MSE[1]:.1e}, {MSE[2]:.1e}]") 
+    #plt.title("Test Data from {} to {} , Mean = {:.2f}".format(start, end, y_mean) ,  fontsize=18)
+    ax1=Fig.add_subplot(3,1,1)
+    #ax1.plot(y[:,0:1],"k:",linewidth=2)
+    ax1.plot(y[:,0:1]/1e5,"k:",linewidth=2)
+    #ax1.plot(yp[:,0]/1e5, label='pred')
+    ax1.plot(yp[:,0:1]/1e5)
+    ax1.set_ylabel("Pbh",  fontsize=Font)
+    ax1.set_xticklabels([])
+    plt.setp(ax1.get_yticklabels(), fontsize=Font)
+    ax1.grid(True)
+    plt.grid(True)
+    ax2=Fig.add_subplot(3,1,2)
+    ax2.set_ylabel("Pwh",  fontsize=Font)
+    ax2.plot(y[:,1]/1e5,"k:",linewidth=2)
+    #ax2.plot(yp[:,1]/1e5, label='pred')
+    ax2.plot(yp[:,1]/1e5)
+    ax2.set_xticklabels([])
+    plt.setp(ax2.get_yticklabels(), fontsize=Font)
+    ax2.grid(True)
+    #plt.grid(True)
+    ax3=Fig.add_subplot(3,1,3)
+    ax3.set_ylabel("q",  fontsize=Font)
+    ax3.plot(y[:,2:]*3600,"k:",linewidth=2,label='obs')
+    #ax3.plot(yp[:,2:]*3600, label='pred')
+    ax3.plot(yp[:,2:]*3600, label='pred')
+    #ax3.xaxis.set_major_locator(MaxNLocator(prune='lower'))
+    #ax3.yaxis.set_major_locator(MaxNLocator(prune='lower'))
+    plt.grid(True)
+    plt.legend(loc='upper left')
+    plt.setp(ax3.get_xticklabels(), fontsize=Font)
+    plt.setp(ax3.get_yticklabels(), fontsize=Font)
+         
+    ax3.set_xlabel('Time(s)' ,  fontsize=Font)
+    plt.legend(bbox_to_anchor=(1.0, -0.3), ncol = 3)
+    # label_texts= [label.get_text() for label in ax3.xaxis.get_ticklabels()]
+    # print(label_texts)
+    return Fig
+
 def save_model_files(folder_string,dict_of_objects,model):
     os.makedirs(folder_string, exist_ok=True)    
     for keys,item in dict_of_objects.items():
