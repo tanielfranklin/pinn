@@ -45,6 +45,8 @@ pinn_restored=restore_pinn_model(local)
 ######################################
 training_report = TrainingReport(pinn, pinn_restored, ds)
 #pinn_restored[0].plotly_losses()
+training_report.gen_plot_result()
+pinn.u_model.save('data_model02')
 
 plt.show() # Uncomment to see the graphics
 

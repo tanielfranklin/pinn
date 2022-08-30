@@ -54,13 +54,13 @@ pinn = pinn_vfm(Nc, tf_optimizer, logger,
 local="model_adam_200/"
 pinn.u_model.load_weights(local+'model.h5')
 pinn_restored=restore_pinn_model(local)
-#######################################
-pinn.lamb_l1 = tf.constant(1.0, dtype=tf.float32)  # x1 residue weight
-pinn.lamb_l2 = tf.constant(1.0, dtype=tf.float32)  # x3 residue weight
-pinn.lamb_l3 = tf.constant(1.0, dtype=tf.float32)  # x3 residue weight
-nt_config.maxIter = 200
-loss_history, trainstate, var_history=pinn.fit_LBFGS(ds.lbfgs_dataset(), nt_config)
-training_report = TrainingReport(pinn, [loss_history, trainstate, var_history], ds)
+# #######################################
+# pinn.lamb_l1 = tf.constant(1.0, dtype=tf.float32)  # x1 residue weight
+# pinn.lamb_l2 = tf.constant(1.0, dtype=tf.float32)  # x3 residue weight
+# pinn.lamb_l3 = tf.constant(1.0, dtype=tf.float32)  # x3 residue weight
+# nt_config.maxIter = 200
+# loss_history, trainstate, var_history=pinn.fit_LBFGS(ds.lbfgs_dataset(), nt_config)
+# training_report = TrainingReport(pinn, [loss_history, trainstate, var_history], ds)
 #------------------------ Set new weights --------------------------------
 pinn.lamb_l1=tf.constant(2.0, dtype=tf.float32) #x3 residue weight
 pinn.lamb_l2=tf.constant(1.9, dtype=tf.float32) #x3 residue weight

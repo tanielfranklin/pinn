@@ -21,4 +21,5 @@ def save_object(obj, filename):
     with open(filename, 'wb') as outp:
         pickle.dump(obj, outp, pickle.HIGHEST_PROTOCOL)
 save_object(ds,file_name)
+ds.gen_fig()
 plt.show()
