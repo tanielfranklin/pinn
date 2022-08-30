@@ -270,7 +270,7 @@ class pinn_vfm(object):
         y_pred = self.u_model(self.test_X)
         yr=self.test_y
         #erro=tf.sqrt((yr[:,-1,:] - y_pred[:,-1,:])**2)
-        erro=tf.square(yr[:,:,:] - y_pred[:,:,0:2])
+        erro=tf.square(yr[:,:,0:2] - y_pred[:,:,0:2])
         return tf.reduce_mean(erro)
 
     @tf.function
