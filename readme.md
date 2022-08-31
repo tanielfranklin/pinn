@@ -3,7 +3,7 @@ If this system help you, you are encouraged to cite the following paper:<br>
 
     ---
     ---
-    @article{franklin2021,
+    @article{franklin2022,
       title     = {A Physics-Informed Neural Networks (PINN) oriented approach to flow
 metering in oil wells: an ESP lifted oil well system as a case study},
       author    = { Franklin,Taniel S.  and  Souza, Leonardo S. and  Fontes, Raony M. and  Martins, Márcio A. F.},
