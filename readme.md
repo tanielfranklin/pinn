@@ -17,4 +17,6 @@ a) start the training using model_adam_200 (main_train_adam.py)  <br>
 b) complete the training changing to main_train_lbfgs resulting in model_adam_lbfgs model <br>
 c) pay attention to the loss terms evolution to set a better set of weights <br>
 
-The notebook main.ipynb demonstrates the model capability during free prediction
+The notebook main.ipynb demonstrates the model capability during free prediction <br>
+<br>
+Feel free to contribute with the software improvements.
