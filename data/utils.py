@@ -124,6 +124,8 @@ def plot_u(uplot):
         ax=fig.add_subplot(len(label),1,i+1)
         ax.plot(uplot[i])#, label=val)
         ax.set_ylabel(val)
+        if i!=3:
+            ax.set_xticklabels([])
         plt.grid(True)
     return fig
 
