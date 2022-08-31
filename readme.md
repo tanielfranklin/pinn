@@ -3,14 +3,13 @@ If this system help you, you are encouraged to cite the following paper:<br>
 
     ---
     ---
-    References
-    ==========
-
-    @book{ruby,
-      title     = {The Ruby Programming Language},
-      author    = {Flanagan, David and Matsumoto, Yukihiro},
-      year      = {2008},
-      publisher = {O'Reilly Media}
+    @article{franklin2021,
+      title     = {A Physics-Informed Neural Networks (PINN) oriented approach to flow
+metering in oil wells: an ESP lifted oil well system as a case study},
+      author    = { Franklin,Taniel S.  and  Souza, Leonardo S. and  Fontes, Raony M. and  Martins, Márcio A. F.},
+      year      = {2022},
+      volume={5},
+      journal = {Digital Chemical Engineering}
     }
 
 There are some datasets available. We build dataset01 (using main_build_dataset.py) for training purposes and dataset_opera (using main_build_dataset.py) to verify the model generability. <br>
