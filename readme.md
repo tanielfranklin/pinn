@@ -1,7 +1,7 @@
-PINN VFM
-If it help you please cite in your paper
-There are some datasets available. We build dataset01 (using main_build_dataset.py) for training purposes and dataset_opera (using main_build_dataset.py) to verify the model generability.
+PINN VFM <br>
+If it help you please cite in your paper <br>
+There are some datasets available. We build dataset01 (using main_build_dataset.py) for training purposes and dataset_opera (using main_build_dataset.py) to verify the model generability. <br>
 
-The procedure to achieve a good model is
-a) 
-a) model_adam_200 is used to start the training process
+The procedure to achieve a good model is: <br>
+a) start the training using model_adam_200 (main_train_adam.py)  <br>
+b) complete the training using changing to main_train_lbfgs resulting in model_adam_lbfgs model <br>
