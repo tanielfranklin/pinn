@@ -1,5 +1,5 @@
 PINN VFM <br>
- If this system help you, you are encouraged to cite the following paper:<br>
+
  
  
 
@@ -15,6 +15,7 @@ c) pay attention to the loss terms evolution to set a better set of weights <br>
 The notebook main.ipynb demonstrates the model capability during free prediction <br>
 <br>
 Feel free to contribute with the software improvements.
+If this code help you, you are encouraged to cite the following paper:<br>
 
 ## Citation
 
