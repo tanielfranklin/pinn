@@ -1,9 +1,7 @@
 PINN VFM <br>
-<!-- If this system help you, you are encouraged to cite the following paper:<br>
+ If this system help you, you are encouraged to cite the following paper:<br>
 
-    ---
-    ---
-  @article{FRANKLIN2022,
+ @article{FRANKLIN2022,
 title = {A Physics-Informed Neural Networks (PINN) oriented approach to flow metering in oil wells: an ESP lifted oil well system as a case study},
 journal = {Digital Chemical Engineering},
 pages = {100056},
@@ -14,7 +12,7 @@ url = {https://www.sciencedirect.com/science/article/pii/S2772508122000461},
 author = {Taniel S. Franklin and Leonardo S. Souza and Raony M. Fontes and Márcio A.F. Martins},
 keywords = {soft sensor, Physics-Informed Neural Networks, electrical submersible pump, virtual flow meter, recurrent neural network},
 
-}-->
+
 There are some datasets available. We build dataset01 (using main_build_dataset.py) for training purposes and dataset_opera (using main_build_dataset.py) to verify the model generability. <br>
 
 The procedure to achieve a good model is: <br>
